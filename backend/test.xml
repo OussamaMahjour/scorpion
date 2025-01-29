@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline task="Regression" library="xgboost">
+    <dataset path="./test.csv" type="csv">
+        <target>
+            <name>price</name>
+            <type>float</type>
+        </target>
+        <features>
+            <feature required="true">
+                <name>time</name>
+                <type>timestamp</type>
+            </feature>
+            <feature required="true">
+                <name>trading volume</name>
+                <type>int</type>
+            </feature>
+        </features>
+    </dataset>
+    <preProcessing>
+        <step>
+            <name>Handling missing values</name>
+            <type>imputation</type>
+            <parameters>
+                <parameter>
+                    <key>strategy</key>
+                    <value>mean</value>
+                </parameter>
+            </parameters>
+        </step>
+    </preProcessing>
+    <model>
+        <hyperparameters>
+            <hyperparameter>
+                <name>max_depth</name>
+                <value>6</value>
+            </hyperparameter>
+            <hyperparameter>
+                <name>eta</name>
+                <value>0.3</value>
+            </hyperparameter>
+        </hyperparameters>
+    </model>
+    <evaluation>
+        <metric>root_mean_square</metric>
+    </evaluation>
+</pipeline>

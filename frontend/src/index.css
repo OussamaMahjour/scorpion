@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+    --color-background: #242424 ;
+    --color-text: #ffffff ;
+    --color-primary: #D50000 ;
+    --color-dark-background-1: #202020;
+    --color-dark-background-2: #0E0D0D;
+    --font-Jaldi: url('https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&family=Jaldi:wght@400;700&display=swap');
+}
+
