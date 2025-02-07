@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline task="Classification" library="tensorflow">
+<ImageClassification>
+    <!-- Dataset Configuration -->
+    <dataset>
+        <type>ImageFolder</type>
+        <path>/data/images</path>
+        <batchSize>32</batchSize>
+        <shuffle>true</shuffle>
+    </dataset>
+
+    <!-- Preprocessing Configuration -->
+    <preprocessing>
+        <resize>
+            <width>224</width>
+            <height>224</height>
+        </resize>
+        <normalization>
+            <mean>0.485</mean>
+            <mean>0.456</mean>
+            <mean>0.406</mean>
+            <std>0.229</std>
+            <std>0.224</std>
+            <std>0.225</std>
+        </normalization>
+    </preprocessing>
+
+    <!-- Model Configuration -->
+    <model>
+        <type>Sequential</type>
+        <layers>
+            <layer type="Conv2D">
+                <name>ConvLayer1</name>
+                <units>64</units>
+                <activation>relu</activation>
+            </layer>
+            <layer type="MaxPooling2D">
+                <name>MaxPoolLayer1</name>
+            </layer>
+            <layer type="Conv2D">
+                <name>ConvLayer2</name>
+                <units>128</units>
+                <activation>relu</activation>
+            </layer>
+            <layer type="MaxPooling2D">
+                <name>MaxPoolLayer2</name>
+            </layer>
+            <layer type="Flatten">
+                <name>FlattenLayer</name>
+            </layer>
+            <layer type="Dense">
+                <name>DenseLayer1</name>
+                <units>512</units>
+                <activation>relu</activation>
+            </layer>
+            <layer type="Dense">
+                <name>DenseLayer2</name>
+                <units>10</units>
+                <activation>softmax</activation>
+            </layer>
+        </layers>
+    </model>
+
+    <!-- Training Configuration -->
+    <training>
+        <epochs>10</epochs>
+        <learningRate>0.001</learningRate>
+        <optimizer>adam</optimizer>
+        <lossFunction>categorical_crossentropy</lossFunction>
+    </training>
+</ImageClassification>
+</pipeline>

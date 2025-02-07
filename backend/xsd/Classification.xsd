@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified">
+
+    <!-- Root element for ImageClassification -->
+    <xsd:include schemaLocation="" />
+
+            <xsd:element name="dataset">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="type" type="xsd:string"/>
+                        <xsd:element name="source" type="xsd:string"/>
+                        <xsd:element name="targetColumn" type="xsd:string"/>
+                        <xsd:element name="batchSize" type="xsd:positiveInteger"/>
+                        <xsd:element name="shuffle" type="xsd:boolean"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="preprocessing">
+                <xsd:complexType>
+                <xsd:sequence>
+                    <!-- Preprocessing step, multiple steps allowed -->
+                    <xsd:element name="step" maxOccurs="unbounded">
+                        <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="type" type="xsd:string"/>
+                            <xsd:element name="parameters">
+                                <xsd:complexType>
+                                <xsd:sequence>
+                                    <xsd:element name="method" type="xsd:string" minOccurs="0"/>
+                                    <xsd:element name="strategy" type="xsd:string" minOccurs="0"/>
+                                    <xsd:element name="mean" type="xsd:float" minOccurs="0"/>
+                                    <xsd:element name="std" type="xsd:float" minOccurs="0"/>
+                                    <xsd:element name="missingValue" type="xsd:string" minOccurs="0"/>
+                                    <xsd:element name="topK" type="xsd:positiveInteger" minOccurs="0"/>
+                                </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="model">
+                <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="type" type="xsd:string"/>
+                    <xsd:element name="parameters">
+                        <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="n_estimators" type="xsd:positiveInteger" minOccurs="0"/>
+                            <xsd:element name="max_depth" type="xsd:positiveInteger" minOccurs="0"/>
+                            <xsd:element name="learning_rate" type="xsd:float" minOccurs="0"/>
+                            <xsd:element name="kernel" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="training">
+                <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="epochs" type="xsd:positiveInteger"/>
+                    <xsd:element name="learningRate" type="xsd:float"/>
+                    <xsd:element name="optimizer" type="xsd:string"/>
+                    <xsd:element name="batchSize" type="xsd:positiveInteger"/>
+                    <xsd:element name="metrics" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+
+</xsd:schema>

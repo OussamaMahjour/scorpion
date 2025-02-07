@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline task="Regression" library="xgboost">
+    <dataset path="data/housing.csv" type="csv">
+        <target>
+            <name>price</name>
+            <type>float</type>
+        </target>
+        <features>
+            <feature required="true">
+                <name>area</name>
+                <type>float</type>
+            </feature>
+            <feature required="true">
+                <name>bedrooms</name>
+                <type>int</type>
+            </feature>
+            <feature required="false">
+                <name>location</name>
+                <type>category</type>
+            </feature>
+        </features>
+    </dataset>
+
+    <preProcessing>
+        <step>
+            <name>handle_missing_values</name>
+            <type>imputation</type>
+            <parameters>
+                <parameter>
+                    <key>strategy</key>
+                    <value>mean</value>
+                </parameter>
+            </parameters>
+        </step>
+        <step>
+            <name>standard_scaling</name>
+            <type>scaling</type>
+        </step>
+    </preProcessing>
+
+    <model>
+        <traditionalModel>
+            <hyperparameters>
+                <hyperparameter>
+                    <name>n_estimators</name>
+                    <value>100</value>
+                </hyperparameter>
+                <hyperparameter>
+                    <name>learning_rate</name>
+                    <value>0.1</value>
+                </hyperparameter>
+                <hyperparameter>
+                    <name>max_depth</name>
+                    <value>5</value>
+                </hyperparameter>
+            </hyperparameters>
+        </traditionalModel>
+    </model>
+
+    <evaluation>
+        <metric>root_mean_square</metric>
+    </evaluation>
+
+    <save format="joblib" path="models/xgboost_regression_model.joblib"/>
+
+    <data_split>
+        <test_size>0.2</test_size>
+        <random_state>42</random_state>
+    </data_split>
+</pipeline>

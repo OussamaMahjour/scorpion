@@ -1,170 +1,290 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<!-- Enumeration for Task Type -->
-	<xs:simpleType name="taskType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="Regression" />
-			<xs:enumeration value="Classification" />
-			<xs:enumeration value="Clustering" />
-		</xs:restriction>
-	</xs:simpleType>
 
-	<!-- Enumeration for Library Type -->
-	<xs:simpleType name="libraryType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="xgboost" />
-			<xs:enumeration value="sklearn" />
-			<xs:enumeration value="tensorflow" />
-			<xs:enumeration value="pytorch"></xs:enumeration>
-		</xs:restriction>
-	</xs:simpleType>
 
-	<!-- Enumeration for Dataset File Type -->
-	<xs:simpleType name="datasetFileType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="csv" />
-			<xs:enumeration value="json" />
-			<xs:enumeration value="parquet" />
-		</xs:restriction>
-	</xs:simpleType>
+  <xs:include schemaLocation="./xsd/ImageClassification.xsd" />
 
-	<!-- Enumeration for Data Type -->
-	<xs:simpleType name="dataType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="int" />
-			<xs:enumeration value="float" />
-			<xs:enumeration value="timestamp" />
-			<xs:enumeration value="string" />
-		</xs:restriction>
-	</xs:simpleType>
+  <!-- Root Element -->
+  <xs:element name="pipeline">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="ImageClassification" type="ImageClassificationType" minOccurs="0" maxOccurs="1" />
+        <xs:sequence>
+          <xs:element name="dataset" type="datasetType"/>
+          <xs:element name="preProcessing" type="preProcessingType" minOccurs="0"/>
+          <xs:element name="model" type="modelType"/>
+          <xs:element name="evaluation" type="evaluationType"/>
+          <xs:element name="save" type="saveType" minOccurs="0"/>
+          <xs:element name="data_split" type="dataSplitType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:choice>
+      <xs:attribute name="task" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="Regression"/>
+            <xs:enumeration value="Classification"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="library" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="tensorflow"/>
+            <xs:enumeration value="pytorch"/>
+            <xs:enumeration value="xgboost"/>
+            <xs:enumeration value="lightgbm"/>
+            <xs:enumeration value="catboost"/>
+            <xs:enumeration value="sklearn"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
 
-	<!-- Enumeration for Step Type -->
-	<xs:simpleType name="stepTypeType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="imputation" />
-			<xs:enumeration value="normalization" />
-			<xs:enumeration value="encoding" />
-		</xs:restriction>
-	</xs:simpleType>
+  <!-- Dataset Structure -->
+  <xs:complexType name="datasetType">
+    <xs:sequence>
+      <xs:element name="target" type="targetType"/>
+      <xs:element name="features" type="featuresType"/>
+    </xs:sequence>
+    <xs:attribute name="path" type="xs:string" use="required"/>
+    <xs:attribute name="type">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="csv"/>
+          <xs:enumeration value="excel"/>
+          <xs:enumeration value="parquet"/>
+          <xs:enumeration value="json"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
 
-	<!-- Enumeration for Metric Type -->
-	<xs:simpleType name="metricType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="root_mean_square" />
-			<xs:enumeration value="accuracy" />
-			<xs:enumeration value="f1_score" />
-		</xs:restriction>
-	</xs:simpleType>
+  <!-- Target Definition -->
+  <xs:complexType name="targetType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="type">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="int"/>
+            <xs:enumeration value="float"/>
+            <xs:enumeration value="category"/>
+            <xs:enumeration value="bool"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
-	<!-- Target Type -->
-	<xs:complexType name="targetType">
-		<xs:sequence>
-			<xs:element name="name" type="xs:string" />
-			<xs:element name="type" type="dataType" />
-		</xs:sequence>
-	</xs:complexType>
+  <!-- Features Definition -->
+  <xs:complexType name="featuresType">
+    <xs:sequence>
+      <xs:element name="feature" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="type">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="int"/>
+                  <xs:enumeration value="float"/>
+                  <xs:enumeration value="category"/>
+                  <xs:enumeration value="timestamp"/>
+                  <xs:enumeration value="text"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="required" type="xs:boolean" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
-	<!-- Feature Type -->
-	<xs:complexType name="featureType">
-		<xs:sequence>
-			<xs:element name="name" type="xs:string" />
-			<xs:element name="type" type="dataType" />
-		</xs:sequence>
-		<xs:attribute name="required" type="xs:boolean" use="required" />
-	</xs:complexType>
+  <!-- Preprocessing Steps -->
+  <xs:complexType name="preProcessingType">
+    <xs:sequence>
+      <xs:element name="step" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="name" type="xs:string" minOccurs="0"/>
+            <xs:element name="type">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="imputation"/>
+                  <xs:enumeration value="scaling"/>
+                  <xs:enumeration value="encoding"/>
+                  <xs:enumeration value="normalization"/>
+                  <xs:enumeration value="feature_selection"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+            <xs:element name="parameters" type="parametersType" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
-	<!-- Features Type -->
-	<xs:complexType name="featuresType">
-		<xs:sequence>
-			<xs:element name="feature" type="featureType" maxOccurs="unbounded" />
-		</xs:sequence>
-	</xs:complexType>
+  <!-- Model Configuration -->
+  <xs:complexType name="modelType">
+    <xs:choice>
+      <!-- Traditional ML -->
+      <xs:sequence>
+        <xs:element name="traditionalModel">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="hyperparameters" type="hyperparametersType"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
 
-	<!-- Dataset Type -->
-	<xs:complexType name="datasetType">
-		<xs:sequence>
-			<xs:element name="target" type="targetType" />
-			<xs:element name="features" type="featuresType" />
-		</xs:sequence>
-		<xs:attribute name="path" type="xs:string" use="required" />
-		<xs:attribute name="type" type="datasetFileType" use="required" />
-	</xs:complexType>
+      <!-- Deep Learning -->
+      <xs:sequence>
+        <xs:element name="deepLearningModel">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="arch" type="architectureType"/>
+              <xs:element name="hyperparameters" type="dlHyperparametersType"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:choice>
+  </xs:complexType>
 
-	<!-- Parameter Type -->
-	<xs:complexType name="parameterType">
-		<xs:sequence>
-			<xs:element name="key" type="xs:string" />
-			<xs:element name="value" type="xs:string" />
-		</xs:sequence>
-	</xs:complexType>
+  <!-- Neural Network Architecture -->
+  <xs:complexType name="architectureType">
+    <xs:sequence>
+      <xs:element name="layer" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="type" use="required">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="Dense"/>
+                <xs:enumeration value="Conv2D"/>
+                <xs:enumeration value="LSTM"/>
+                <xs:enumeration value="Linear"/>
+                <xs:enumeration value="ReLU"/>
+                <xs:enumeration value="Dropout"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+          <xs:attribute name="units" type="xs:positiveInteger"/>
+          <xs:attribute name="activation">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="relu"/>
+                <xs:enumeration value="sigmoid"/>
+                <xs:enumeration value="tanh"/>
+                <xs:enumeration value="linear"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+          <xs:attribute name="input_features" type="xs:positiveInteger"/>
+          <xs:attribute name="output_features" type="xs:positiveInteger"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
-	<!-- Parameters Type -->
-	<xs:complexType name="parametersType">
-		<xs:sequence>
-			<xs:element name="parameter" type="parameterType" maxOccurs="unbounded" />
-		</xs:sequence>
-	</xs:complexType>
+  <!-- Hyperparameters -->
+  <xs:complexType name="hyperparametersType">
+    <xs:sequence>
+      <xs:element name="hyperparameter" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="value" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
-	<!-- Step Type -->
-	<xs:complexType name="stepType">
-		<xs:sequence>
-			<xs:element name="name" type="xs:string" />
-			<xs:element name="type" type="stepTypeType" />
-			<xs:element name="parameters" type="parametersType" minOccurs="0" />
-		</xs:sequence>
-	</xs:complexType>
+  <!-- Deep Learning Hyperparameters -->
+  <xs:complexType name="dlHyperparametersType">
+    <xs:sequence>
+      <xs:element name="optimizer">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="Adam"/>
+            <xs:enumeration value="SGD"/>
+            <xs:enumeration value="RMSprop"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="loss" type="xs:string"/>
+      <xs:element name="epochs" type="xs:positiveInteger"/>
+      <xs:element name="batch_size" type="xs:positiveInteger"/>
+      <xs:element name="metrics" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="metric" type="xs:string" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
-	<!-- Preprocessing Type -->
-	<xs:complexType name="preProcessingType">
-		<xs:sequence>
-			<xs:element name="step" type="stepType" maxOccurs="unbounded" />
-		</xs:sequence>
-	</xs:complexType>
+  <!-- Evaluation Metrics -->
+  <xs:complexType name="evaluationType">
+    <xs:sequence>
+      <xs:element name="metric">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="root_mean_square"/>
+            <xs:enumeration value="mae"/>
+            <xs:enumeration value="r2"/>
+            <xs:enumeration value="accuracy"/>
+            <xs:enumeration value="f1"/>
+            <xs:enumeration value="precision"/>
+            <xs:enumeration value="recall"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
-	<!-- Hyperparameter Type -->
-	<xs:complexType name="hyperparameterType">
-		<xs:sequence>
-			<xs:element name="name" type="xs:string" />
-			<xs:element name="value" type="xs:string" />
-		</xs:sequence>
-	</xs:complexType>
+  <!-- Model Saving -->
+  <xs:complexType name="saveType">
+    <xs:attribute name="format">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="h5"/>
+          <xs:enumeration value="pb"/>
+          <xs:enumeration value="pytorch"/>
+          <xs:enumeration value="pickle"/>
+          <xs:enumeration value="joblib"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="path" type="xs:string" use="required"/>
+  </xs:complexType>
 
-	<!-- Hyperparameters Type -->
-	<xs:complexType name="hyperparametersType">
-		<xs:sequence>
-			<xs:element name="hyperparameter" type="hyperparameterType"
-				maxOccurs="unbounded" />
-		</xs:sequence>
-	</xs:complexType>
+  <!-- Data Splitting -->
+  <xs:complexType name="dataSplitType">
+    <xs:sequence>
+      <xs:element name="test_size" type="xs:float"/>
+      <xs:element name="random_state" type="xs:positiveInteger"/>
+    </xs:sequence>
+  </xs:complexType>
 
-	<!-- Model Type -->
-	<xs:complexType name="modelType">
-		<xs:sequence>
-			<xs:element name="hyperparameters" type="hyperparametersType" />
-		</xs:sequence>
-	</xs:complexType>
-
-	<!-- Evaluation Type -->
-	<xs:complexType name="evaluationType">
-		<xs:sequence>
-			<xs:element name="metric" type="metricType" />
-		</xs:sequence>
-	</xs:complexType>
-
-	<!-- Root Pipeline Type -->
-	<xs:complexType name="pipelineType">
-		<xs:sequence>
-			<xs:element name="dataset" type="datasetType" />
-			<xs:element name="preProcessing" type="preProcessingType" />
-			<xs:element name="model" type="modelType" />
-			<xs:element name="evaluation" type="evaluationType" />
-		</xs:sequence>
-		<xs:attribute name="task" type="taskType" use="required" />
-		<xs:attribute name="library" type="libraryType" use="required" />
-	</xs:complexType>
-
-	<!-- Root Element -->
-	<xs:element name="pipeline" type="pipelineType" />
+  <!-- Generic Parameters -->
+  <xs:complexType name="parametersType">
+    <xs:sequence>
+      <xs:element name="parameter" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="key" type="xs:string"/>
+            <xs:element name="value" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
 </xs:schema>

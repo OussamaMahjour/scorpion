@@ -21,18 +21,19 @@ public class Controller  {
         }
         InputStream inputStream = uploadedFile.content();
         try {
-            byte[] buffer =inputStream.readAllBytes();
+            byte[] buffer = inputStream.readAllBytes();
             String content = new String(buffer);
             ctx.result(content);
-            if(Service.validate(content)){
-                ctx.result("xml valide");
-            }else {
-                ctx.result("xml invalide ").status(400);
+            String response = Service.validate(content);
+            if(response.equals(Service.XML_VALID)){
+                ctx.result(Service.XML_VALID).status(200);
+            }else{
+                ctx.result(response).status(400);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            ctx.result("error loading file").status(400);
+            ctx.result("error loading file").status(500);
         }
 
 

@@ -3,7 +3,14 @@ import NavBar from "./NavBar";
 import Code from "./Code";
 import { CodeBlock} from "react-code-block";
 import { useState } from "react";
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import UICode from "./UICode";
+
+
+enum View {
+    CodeView,
+    UIView
+}
 
 const Editor = () => {
     const {start,complete} = useLoadingBar();
@@ -21,10 +28,13 @@ const Editor = () => {
     const [script,setScript] = useState<string>(`
         import pandas as pd
         `)
+    const [xsdError,setXsdError] = useState<string>();
     
+    const [view,setView]=useState<View>(View.CodeView);
 
 
     const handleCompile =async () => {
+
         setCompiling(true);
         console.log("Compiled Code: ", code);
         // Here you can process the code, send it to an API, etc.
@@ -34,8 +44,9 @@ const Editor = () => {
         formData.append("file",file);
         try {
             // Sending the FormData to the backend at port 8080
+            console.log(code)
             const response = await axios.post(
-              "http://127.0.0.1:8080/validate", // Update with your actual backend endpoint
+              "http://localhost:8080/validate", // Update with your actual backend endpoint
               formData, // Send the FormData containing the file
               {
                 headers: {
@@ -45,7 +56,7 @@ const Editor = () => {
             );
             if(response.status == 200 ){
                 const scriptResponse = await axios.post(
-                    "http://127.0.0.1:8080/transform", // Update with your actual backend endpoint
+                    "http://localhost:8080/transform", // Update with your actual backend endpoint
                     formData, // Send the FormData containing the file
                     {
                       headers: {
@@ -54,14 +65,43 @@ const Editor = () => {
                     }
                   );
                   setScript(scriptResponse.data);
+                  setXsdError('');
                   setCompiling(false);
             }
             
             // Handle the response from the backend
             console.log("Response from backend: ", response.data);
           } catch (error) {
-            alert(error)
-            console.error("Error sending XML file: ", error);
+            if (axios.isAxiosError(error)) {
+                // This is where we narrow down the type to AxiosError
+                if (error.response) {
+                  // The request was made and the server responded with a status code
+                  // that falls out of the range of 2xx
+                  if (error.response.status === 400) {
+                    console.error("Bad Request Error:", error.response.data);
+                    setScript("");
+                    setXsdError(error.response.data)
+                    setCompiling(false); // Set response data for Bad Request
+                  } else if (error.response.status === 500) {
+                    console.error("Server Error:", error.response.data);
+                    alert("Server error, please try again later.");
+                  } else {
+                    console.error("Unexpected response error:", error.response);
+                  }
+                } else if (error.request) {
+                  // The request was made but no response was received
+                  console.error("No response received:", error.request);
+                  alert("No response from the server.");
+                } else {
+                  // Something else happened while setting up the request
+                  console.error("Error setting up request:", error.message);
+                  alert("Error sending XML file.");
+                }
+              } else {
+                // If it's not an AxiosError, handle the unknown error
+                console.error("An unknown error occurred:", error);
+                alert("An unknown error occurred.");
+              }
           }
     };
     const handleDownload = () => {
@@ -91,18 +131,44 @@ const Editor = () => {
     };
     start();
     complete();
+   
 
 
 return <div className="w-full h-screen max-h-screen bg-[#1b222c] overflow-hidden flex flex-col">
        <NavBar/>
        <div className="w-full min-h-0 flex  flex-1">
             <div className="w-1/2 h-full flex flex-col">
-                    <div className="h-7 w-full [border-right:3px_solid_#ffffff32]  py-1 flex justify-between">
-                       
+                    <div className="h-7 w-full [border-right:3px_solid_#ffffff32]   flex justify-start">
+                       <button className="h-full w-1/5 bg-[#282c34] text-white cursor-pointer"
+                       onClick={
+                        (e)=>{
+                            setView(View.UIView);
+                            
+                        }
+                       }
+                       >UI</button>
+                       <button className="h-full w-1/5  text-white cursor-pointer" 
+                       onClick={
+                        (e)=>{
+                            setView(View.CodeView);  
+                        }
+                       }
+                       >Code</button>
+
 
                     </div>
                     <div className="w-full flex-1 [border-top:1px_solid_#ffffff32] [border-right:3px_solid_#ffffff32] min-h-0 overflow-scroll ">
-                        <Code onCodeChange={handleCodeChange} />
+                 
+                  {(() => {
+                    switch (view) {
+                        case View.CodeView:
+                        return  <Code  onCodeChange={handleCodeChange} />  ;
+                        case View.UIView:
+                        return <UICode setCode={setCode} onCodeChange={handleCodeChange}/>
+                        default:
+                        return  <Code onCodeChange={handleCodeChange} />  ;
+                    }
+                    })()}
                     </div>
 
             </div>
@@ -118,14 +184,19 @@ return <div className="w-full h-screen max-h-screen bg-[#1b222c] overflow-hidden
 
                         <i className="fa-solid  fa-download  cursor-pointer text-white text-lg p-1" onClick={handleDownload} ></i>
                 </div>
-                    <div className="w-full flex-1 [border-top:1px_solid_#ffffff32] bg-[#282c34] min-h-0 overflow-scroll ">
+                    <div className="w-full relative flex-1 [border-top:1px_solid_#ffffff32] bg-[#282c34] min-h-0 overflow-scroll ">
                     <CodeBlock 
                     code={script}
-                    language="python">
+                    language="python"
+                    >
+                        <div className="absolute p-4 max-w-full bg-[#282c34] w-full  ">
+                                <p className="text-[#c42f06] w-full"  >{xsdError}</p>
+                            </div>
 
-                        <CodeBlock.Code className="bg-[#282c34] p-2 ">
+                        <CodeBlock.Code className="bg-[#282c34] p-2  ">
 
                         <div className="table-row">
+                            
 
                             <CodeBlock.LineNumber className="table-cell  pr-4 [border-right:1px_solid_#ffffff32]  text-sm text-gray-500 text-right select-none" />
 

@@ -32,7 +32,7 @@
         <deepLearningModel>
             <arch>
                 <layer type="Dense" units="128" activation="relu" input_features="10"/>
-                <layer type="Dropout" units="0.2"/>
+                <layer type="Dropout" units="1"/>
                 <layer type="Dense" units="1" activation="sigmoid"/>
             </arch>
             <hyperparameters>

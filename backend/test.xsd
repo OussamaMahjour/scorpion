@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+
+
+            elementFormDefault="qualified">
+
+  <!-- Import the ImageClassification schema -->
+
+  <xsd:include schemaLocation="./xsd/ImageClassification.xsd" />
+  <xsd:include schemaLocation="./pipeline.xsd" />
+
+  <!-- Root element with a task attribute -->
+  <xsd:element name="pipeline">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:choice>
+          <xsd:element name="ImageClassification" type="ImageClassificationType" minOccurs="0" maxOccurs="1" />
+          <xsd:element name="Classification"  minOccurs="0" maxOccurs="1" />
+        </xsd:choice>
+      </xsd:sequence>
+
+    </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>

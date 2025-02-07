@@ -18,8 +18,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 public class Service {
+    public static final String XML_VALID = "xml valid";
+    public  static String validate(String xml){
 
-    public  static boolean validate(String xml) throws SAXException {
         try {
             // Load XSD
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -34,18 +35,18 @@ public class Service {
 
             // Validate
             validator.validate(xmlSource);
-            return true;
+            return XML_VALID;
         } catch (SAXException e) {
-            return false;
+            return e.getMessage();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return false;
+
 
     }
     public static String compileXMLToPython(String xmlStr){
         try {
-            String xsltPath = "pipeline.xslt";
+            String xsltPath = "main.xslt";
 
             // Load XML and XSLT
             Source xmlSource = new StreamSource(new StringReader(xmlStr));
