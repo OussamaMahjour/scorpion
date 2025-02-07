@@ -1,10 +1,4 @@
-# **Markdown Documentation: How to Write an XML File for These XSD Schemas**
-
-This documentation explains how to create an XML file that validates against the provided **XSD schemas** for configuring an **ML pipeline** with options for **general machine learning tasks** (like regression or classification) and specialized tasks such as **image classification**.
-
----
-
-## **General XML Structure for a Valid Pipeline**
+# **General XML Structure for a Valid Pipeline**
 The XML file should start with a `pipeline` root element. Depending on the type of task, the structure can follow one of two paths:  
 
 1. **General Machine Learning Task (Regression, Classification)**  
